@@ -10,6 +10,14 @@ pub struct Service {
     repo: Repository
 }
 
+impl Service {
+    pub fn new() -> Self {
+        Service {
+            repo: Repository {  }
+        }
+    }
+}
+
 pub fn router() -> Router {
     Router::new()
         .route("/quotes", routing::get(index))

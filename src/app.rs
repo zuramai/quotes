@@ -1,25 +1,31 @@
-use std::net::SocketAddr;
+use std::{net::SocketAddr, sync::Arc};
 
 use axum::{Router, routing::{Route, self}, response::IntoResponse};
 use mongodb::Database;
 use tracing_subscriber::prelude::*;
 
-use crate::{error::Error, user, utils::response::ApiResponse, config::Config, db::DB};
+use crate::{error::Error, user, utils::response::ApiResponse, config::Config, db::DB, context::ServerContext};
 
 use super::quote;
 
-pub async fn init() -> Result<Router, Error> {
+pub async fn init(db: DB, config: Config) -> Result<Router, Error> {
     let api_routes = Router::new()
         .route("/healthchecker", routing::get(healthchecker))
         .merge(quote::router())
         .merge(user::router());
     let app = Router::new()
-        .nest_service("/api", api_routes);
+        .nest_service("/api", api_routes)
+        .with_state(Arc::new(ServerContext {
+            db: Arc::new(db),
+            config: Arc::new(config),
+            quote_service: Arc::new(quote::Service::new())
+        }
+    ));
     Ok(app)
 }
 
 pub async fn serve(host: SocketAddr, config: Config, db: DB) -> Result<(), super::error::Error> {
-    let app = init().await?;
+    let app = init(db, config).await?;
 
     axum::Server::bind(&host)
         .serve(app.into_make_service())
