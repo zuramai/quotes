@@ -4,8 +4,8 @@ use response::ApiResponse;
 mod model;
 mod response;
 
-async fn health_checker_handler<T>() -> impl IntoResponse {
-    ApiResponse::error("test".into(), Some(StatusCode::OK))
+async fn health_checker_handler() -> impl IntoResponse {
+    ApiResponse::<String>::error("test".into(), Some(StatusCode::OK))
         .send()
         
 }

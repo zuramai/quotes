@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+
 use axum::{response::IntoResponse, Json, http::{Response, StatusCode, Result}, body::BoxBody};
 use serde::{Serialize, Deserialize};
 use serde_json::Value;
@@ -18,31 +20,15 @@ pub struct ApiResponse<T: Serialize> {
     status: Option<StatusCode>
 }
 
-// impl<T: Serialize> IntoResponse for ApiResponse<T> {
-//     type Body = GenericResponse<T>;
-
-//     fn into_response(self) -> Response<Json<GenericResponse<T>>> {
-//         Response::builder()
-//             .status(self.status.unwrap_or(StatusCode::INTERNAL_SERVER_ERROR))
-//             .body(Json(GenericResponse{
-//                 data: self.body,
-//                 message: self.message,
-//             }
-//             ))
-//             .unwrap()    
-//     }
-// }
 
 impl<T: Serialize> ApiResponse<T> {
-    pub fn send(&self) -> Result<Response<Json<GenericResponse<T>>>> {
-        Response::builder()
-            .status(self.status.unwrap_or(StatusCode::INTERNAL_SERVER_ERROR))
-            .body(Json(
-                GenericResponse{
-                    data: self.body,
-                    message: self.message,
-                }
-            ))
+    pub fn send(&self) -> (StatusCode, Json<serde_json::Value>) {
+        let status = self.status.unwrap_or(StatusCode::OK);
+        let response = Json(serde_json::json!(GenericResponse {
+            data: self.body.as_ref(),
+            message: self.message.to_string()
+        }));
+        (status, response)
     }
     pub fn success(message: String, body: T, status_code: Option<StatusCode>) -> ApiResponse<T> {
         Self {
