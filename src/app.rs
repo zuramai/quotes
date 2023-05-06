@@ -1,11 +1,7 @@
 use std::{net::SocketAddr, sync::Arc};
 
 use axum::{Router, routing::{Route, self}, response::IntoResponse};
-use mongodb::Database;
-use tracing_subscriber::prelude::*;
-
 use crate::{error::Error, user, utils::response::ApiResponse, config::Config, db::DB, context::ServerContext};
-
 use super::quote;
 
 pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
