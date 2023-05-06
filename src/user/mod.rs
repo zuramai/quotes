@@ -1,5 +1,9 @@
+use std::sync::Arc;
+
 use axum::{Router, routing, Json, response::IntoResponse};
 use serde::Serialize;
+
+use crate::context::ServerContext;
 
 use self::repository::Repository;
 
@@ -10,7 +14,7 @@ pub struct Service {
     repo: Repository
 }
 
-pub fn router() -> Router {
+pub fn router() -> Router<Arc<ServerContext>> {
     Router::new()
         .route("/users", routing::get(index))
         .route("/users", routing::post(store))

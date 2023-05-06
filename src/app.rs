@@ -8,19 +8,19 @@ use crate::{error::Error, user, utils::response::ApiResponse, config::Config, db
 
 use super::quote;
 
-pub async fn init(db: DB, config: Config) -> Result<Router, Error> {
+pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
     let api_routes = Router::new()
         .route("/healthchecker", routing::get(healthchecker))
         .merge(quote::router())
         .merge(user::router());
+
     let app = Router::new()
-        .nest_service("/api", api_routes)
+        .nest("/api", api_routes)
         .with_state(Arc::new(ServerContext {
             db: Arc::new(db),
             config: Arc::new(config),
             quote_service: Arc::new(quote::Service::new())
-        }
-    ));
+        }));
     Ok(app)
 }
 

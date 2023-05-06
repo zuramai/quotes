@@ -8,10 +8,17 @@ pub struct Quote {
     pub id: ObjectId,
     pub quote: String,
     pub tags: Vec<String>,
-    pub by: String,
+    pub author: String,
 
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub created_at: DateTime<Utc>,
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Author {
+    #[serde(rename = "_id")]
+    pub id: ObjectId,
+    pub name: String
 }
