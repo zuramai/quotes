@@ -1,13 +1,14 @@
-use mongodb::{Collection, bson::Document, options::{ClientOptions, ServerApi, ServerApiVersion}, error::Error, Client};
+use mongodb::{Collection, bson::Document, options::{ClientOptions, ServerApi, ServerApiVersion}, error::Error, Client, Database};
 
 use crate::quote::model::Quote;
 
 
 pub struct DB {
+    pub conn: Database
 }
 
 impl DB {
-    pub async fn init() -> Result<Collection<Quote>,Error> {
+    pub async fn init() -> Result<Self, Error> {
         let database_url = std::env::var("DATABASE_URL").ok().unwrap();
         let mut  client_options = ClientOptions::parse(database_url).await?;
 
@@ -18,8 +19,10 @@ impl DB {
 
         let db = client
             .database(std::env::var("MONGO_INITDB_DATABASE").ok().unwrap().as_str());
-        let quotes_collection = db.collection("quotes");
-
-        Ok(quotes_collection)
+        
+        tracing::info!("MongoDB database connected!");
+        Ok(DB {
+            conn: db
+        })
     }
 }
