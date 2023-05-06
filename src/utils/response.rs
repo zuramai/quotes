@@ -30,9 +30,9 @@ impl<T: Serialize> ApiResponse<T> {
         }));
         (status, response)
     }
-    pub fn success(message: String, body: T, status_code: Option<StatusCode>) -> ApiResponse<T> {
+    pub fn success(message: String, body: Option<T>, status_code: Option<StatusCode>) -> ApiResponse<T> {
         Self {
-            body: Some(body),
+            body: body,
             message,
             status: Some(status_code.unwrap_or(StatusCode::OK))
         }            
