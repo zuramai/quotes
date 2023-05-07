@@ -1,6 +1,4 @@
-use mongodb::{Collection, bson::Document, options::{ClientOptions, ServerApi, ServerApiVersion}, error::Error, Client, Database};
-
-use crate::quote::model::Quote;
+use mongodb::{options::{ClientOptions, ServerApi, ServerApiVersion}, error::Error, Client, Database};
 
 
 pub struct DB {
@@ -10,10 +8,7 @@ pub struct DB {
 impl DB {
     pub async fn init() -> Result<Self, Error> {
         let database_url = std::env::var("DATABASE_URL").ok().unwrap();
-        let mut  client_options = ClientOptions::parse(database_url).await?;
-
-        let server_api = ServerApi::builder().version(ServerApiVersion::V1).build();
-        client_options.server_api = Some(server_api);
+        let client_options = ClientOptions::parse(database_url).await?;
 
         let client = Client::with_options(client_options)?;
 
