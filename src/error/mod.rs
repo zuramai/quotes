@@ -1,3 +1,7 @@
+use axum::{response::IntoResponse, http::StatusCode};
+
+use crate::utils::response::ApiResponse;
+
 
 #[derive(thiserror::Error, Debug, Clone)]
 pub enum Error {
@@ -37,6 +41,19 @@ pub enum Error {
     #[error("invalid ID: {0}")]
     InvalidIDError(String),
 
-    #[error("Note with ID: {0} not found")]
+    #[error("Quote with ID: {0} not found")]
     NotFoundError(String),
+}
+
+impl IntoResponse for Error {
+    fn into_response(self) -> axum::response::Response {
+        let status_code = match self {
+            Error::NotFound(_) => StatusCode::NOT_FOUND,
+            Error::PermissionDenied(_) => StatusCode::UNAUTHORIZED,
+            Error::AlreadyExists(_) => StatusCode::UNPROCESSABLE_ENTITY,
+            Error::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            _ => StatusCode::INTERNAL_SERVER_ERROR
+        };
+        ApiResponse::<String>::error(self.clone().to_string(), Some(status_code)).into_response()
+    }
 }

@@ -33,5 +33,4 @@ pub async fn serve(host: SocketAddr, config: Config, db: DB) -> Result<(), super
 
 pub async fn healthchecker() -> impl IntoResponse {
     ApiResponse::<String>::success("I'm healthy!".into(), None, None)
-        .send()
 }

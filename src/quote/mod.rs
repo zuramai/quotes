@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use axum::{Router, routing, Json, response::IntoResponse, extract::{State, Query}, http::StatusCode};
+use axum::{Router, routing, Json, response::IntoResponse, extract::{State, Query}, http::{StatusCode, request, Request}, body::Body};
 use serde::Serialize;
 
-use crate::{context::ServerContext, utils::response::ApiResponse, quote::model::Quote};
+use crate::{context::ServerContext, utils::response::ApiResponse, quote::model::Quote, error::Error};
 
-use self::repository::Repository;
+use self::{repository::Repository, schema::CreateQuoteRequest};
 
 pub mod model;
 pub mod repository;
@@ -25,7 +25,8 @@ impl Service {
 
 pub fn router() -> Router<Arc<ServerContext>> {
     Router::new()
-        .route("/quotes", routing::get(index).post(store))
+        .route("/quotes", routing::get(index))
+        .route("/quotes", routing::post(store))
 }
 
 
@@ -39,7 +40,7 @@ pub async fn index(
         .await
         .map_err(|err| {
             tracing::error!("Error: {}", err);
-            ApiResponse::<String>::error("Internal Server Error".into(), None).send()
+            ApiResponse::<Vec<Quote>>::error("Internal Server Error".into(), None)
         });
     if let Err(e) = quotes {
         return e;
@@ -50,12 +51,22 @@ pub async fn index(
                 Some(quotes.unwrap()), 
                 None
         );
-    response.send()
+    response
 }
 
 pub async fn store(
-    server_context: State<Arc<ServerContext>>
-) -> impl IntoResponse {
-    let response = Json(serde_json::json!({}));
-    response
+    server_context: State<Arc<ServerContext>>,
+    Json(body): Json<CreateQuoteRequest>,
+) -> Result<impl IntoResponse,impl IntoResponse> {
+    let quote: Result<Quote, Error> = server_context.0.quote_service.repo.insert_one(server_context.db.clone(), body).await;
+    if let Err(e) = quote {
+        return Err(e);
+    }
+
+    let response = ApiResponse::<Quote>::success(
+                "Quote created".to_string(), 
+                Some(quote.unwrap()), 
+                None
+            );
+    return Ok(response);
 }

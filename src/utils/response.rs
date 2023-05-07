@@ -14,6 +14,8 @@ pub struct GenericResponse<T> {
 pub struct ErrorResponse {
     pub message: String
 }
+
+#[derive(Debug)]
 pub struct ApiResponse<T: Serialize> {
     message: String,
     body: Option<T>,
@@ -22,14 +24,6 @@ pub struct ApiResponse<T: Serialize> {
 
 
 impl<T: Serialize> ApiResponse<T> {
-    pub fn send(&self) -> (StatusCode, Json<serde_json::Value>) {
-        let status = self.status.unwrap_or(StatusCode::OK);
-        let response = Json(serde_json::json!(GenericResponse {
-            data: self.body.as_ref(),
-            message: self.message.to_string()
-        }));
-        (status, response)
-    }
     pub fn success(message: String, body: Option<T>, status_code: Option<StatusCode>) -> ApiResponse<T> {
         Self {
             body: body,
@@ -44,4 +38,16 @@ impl<T: Serialize> ApiResponse<T> {
             status: Some(status_code.unwrap_or(StatusCode::INTERNAL_SERVER_ERROR))
         }      
     }
+}
+
+impl<T: Serialize> IntoResponse for ApiResponse<T> {
+    fn into_response(self) -> axum::response::Response {
+        let status = self.status.unwrap_or(StatusCode::OK);
+        let response = Json(serde_json::json!(GenericResponse {
+            data: self.body.as_ref(),
+            message: self.message.to_string()
+        }));
+        (status, response).into_response()
+    }
+
 }

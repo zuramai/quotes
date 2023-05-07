@@ -2,7 +2,7 @@ use chrono::{Utc, DateTime};
 use mongodb::bson::{self,oid::ObjectId};
 use serde::{self, Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Quote {
     #[serde(rename = "_id")]
     pub id: ObjectId,
