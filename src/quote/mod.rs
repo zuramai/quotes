@@ -45,7 +45,7 @@ pub async fn index(
     if let Err(e) = quotes {
         return e;
     }
-
+    tracing::info!("Quotes: {:#?}", quotes.as_ref().unwrap());
     let response = ApiResponse::<Vec<Quote>>::success(
                 "Success get quotes".to_string(), 
                 Some(quotes.unwrap()), 
