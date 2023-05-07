@@ -3,7 +3,7 @@ use std::sync::Arc;
 use axum::{Router, routing, Json, response::IntoResponse, extract::{State, Query}, http::StatusCode};
 use serde::Serialize;
 
-use crate::{context::ServerContext, utils::response::ApiResponse};
+use crate::{context::ServerContext, utils::response::ApiResponse, quote::model::Quote};
 
 use self::repository::Repository;
 
@@ -39,10 +39,17 @@ pub async fn index(
         .await
         .map_err(|err| {
             tracing::error!("Error: {}", err);
-            (StatusCode::INTERNAL_SERVER_ERROR)
+            ApiResponse::<String>::error("Internal Server Error".into(), None).send()
         });
+    if let Err(e) = quotes {
+        return e;
+    }
 
-    let response = ApiResponse::<String>::error("arst".into(), Some(StatusCode::INTERNAL_SERVER_ERROR));
+    let response = ApiResponse::<Vec<Quote>>::success(
+                "Success get quotes".to_string(), 
+                Some(quotes.unwrap()), 
+                None
+        );
     response.send()
 }
 
