@@ -1,6 +1,6 @@
 use std::borrow::Borrow;
 
-use axum::{response::IntoResponse, Json, http::{Response, StatusCode, Result}, body::BoxBody};
+use axum::{response::IntoResponse, Json, http::{Response, StatusCode, Result}, body::BoxBody, extract::rejection::JsonRejection};
 use serde::{Serialize, Deserialize};
 use serde_json::Value;
 
@@ -49,5 +49,14 @@ impl<T: Serialize> IntoResponse for ApiResponse<T> {
         }));
         (status, response).into_response()
     }
+}
 
+impl From<JsonRejection> for ApiResponse<String> {
+    fn from(value: JsonRejection) -> Self {
+        Self {
+            body: None,
+            message: value.body_text(),
+            status: Some(value.status())
+        }
+    }
 }

@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
-use axum::{Router, routing, Json, response::IntoResponse, extract::{State, Query}, http::{StatusCode, request, Request}, body::Body};
+use axum::{Router, routing, response::IntoResponse, extract::{State, Query}, http::{StatusCode, request, Request}, body::Body, error_handling::HandleErrorLayer};
 use serde::Serialize;
 
-use crate::{context::ServerContext, utils::response::ApiResponse, quote::model::Quote, error::Error};
+use crate::{context::ServerContext, utils::{response::ApiResponse, request::Json}, quote::model::Quote, error::Error};
 
 use self::{repository::Repository, schema::CreateQuoteRequest};
 
@@ -27,6 +27,7 @@ pub fn router() -> Router<Arc<ServerContext>> {
     Router::new()
         .route("/quotes", routing::get(index))
         .route("/quotes", routing::post(store))
+        
 }
 
 

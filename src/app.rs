@@ -1,8 +1,10 @@
 use std::{net::SocketAddr, sync::Arc};
 
-use axum::{Router, routing::{Route, self}, response::IntoResponse};
+use axum::{Router, routing::{Route, self}, response::IntoResponse, error_handling::HandleErrorLayer, http::StatusCode};
 use crate::{error::Error, user, utils::response::ApiResponse, config::Config, db::DB, context::ServerContext};
 use super::quote;
+use tower::{ServiceBuilder};
+
 
 pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
     let api_routes = Router::new()
@@ -12,6 +14,9 @@ pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
 
     let app = Router::new()
         .nest("/api", api_routes)
+        .layer(
+            ServiceBuilder::new()
+        )
         .with_state(Arc::new(ServerContext {
             db: Arc::new(db),
             config: Arc::new(config),
