@@ -1,10 +1,8 @@
 <script setup lang="ts">
+import AppHeader from './components/AppHeader.vue'
 </script>
 
 <template>
-  <header class="text-4xl">
-    BukaLink
-  </header>
-
+  <AppHeader></AppHeader>
   <RouterView />
 </template>
