@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import CardQuote from '@/components/CardQuote.vue';
 import { onMounted, reactive, ref } from 'vue';
 
 const link = ref('')
@@ -28,6 +29,12 @@ const copyLink = async () => {
   <main>
     <section id="hero" class="flex items-center justify-center bg-white">
       <div class="container px-5">
+        <div class="cards grid grid-cols-3 gap-5">
+          <CardQuote></CardQuote>
+          <CardQuote></CardQuote>
+          <CardQuote></CardQuote>
+          <CardQuote></CardQuote>
+        </div>
       </div>
     </section>
   </main>

@@ -25,12 +25,8 @@ impl Service {
 
 pub fn router() -> Router<Arc<ServerContext>> {
     Router::new()
-        .route("/quotes", routing::get(index))
-        .route("/quotes", routing::post(store))
-        
+        .route("/quotes", routing::get(index).post(store))
 }
-
-
 
 pub async fn index(
     opts: Option<Query<String>>,

@@ -1,5 +1,5 @@
 <template>
-    <header class="absolute w-full text-center py-3  border-b border-gray-300">
+    <header class=" w-full text-center py-3  border-b border-gray-300 mb-10">
         <h1 class="title text-4xl lg:text-6xl mb-5 leading-tight font-bold">Quotes</h1>
 
         <ul class="flex gap-5 justify-center">
