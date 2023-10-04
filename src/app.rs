@@ -8,11 +8,12 @@ use tower::{ServiceBuilder};
 
 pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
     let api_routes = Router::new()
-        .route("/healthchecker", routing::get(healthchecker))
         .merge(quote::router())
         .merge(user::router());
 
     let app = Router::new()
+        .route("/healthchecker", routing::get(healthchecker))
+        .route("/", routing::get(welcome))
         .nest("/api", api_routes)
         .layer(
             ServiceBuilder::new()
@@ -23,6 +24,10 @@ pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
             quote_service: Arc::new(quote::Service::new())
         }));
     Ok(app)
+}
+
+pub async fn welcome() -> impl IntoResponse {
+    ApiResponse::<String>::success("Welcome to Quotes!".into(), None, None)
 }
 
 pub async fn serve(host: SocketAddr, config: Config, db: DB) -> Result<(), super::error::Error> {
