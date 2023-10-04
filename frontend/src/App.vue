@@ -2,7 +2,8 @@
 </script>
 
 <template>
-  <header>
+  <header class="text-4xl">
+    BukaLink
   </header>
 
   <RouterView />
