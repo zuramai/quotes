@@ -10,7 +10,7 @@ impl Repository {
 
         let mut quotes: QuoteList = Vec::new();
 
-        
+            
 
         tracing::info!("Quotes fetched!");
         Ok(quotes)
