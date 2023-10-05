@@ -8,5 +8,5 @@ CREATE TABLE IF NOT EXISTS quotes (
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     FOREIGN KEY(author_id) REFERENCES quote_authors(id) ON DELETE CASCADE,
-    FOREIGN KEY(created_by) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY(created_by) REFERENCES users(id) ON DELETE SET NULL
 );

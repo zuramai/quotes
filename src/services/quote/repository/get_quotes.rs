@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{db::DB, error::Error, services::quote::schema::QuoteList};
+use crate::{db::DB, error::Error, services::quote::{schema::QuoteList, model::{quote::Quote, quote_author::QuoteAuthor}}};
 
 use super::Repository;
 
@@ -10,7 +10,12 @@ impl Repository {
 
         let mut quotes: QuoteList = Vec::new();
 
-            
+        let result = sqlx::query!("
+            SELECT * FROM quotes")
+            .fetch_all(&db.conn)
+            .await?;
+
+        unimplemented!();
 
         tracing::info!("Quotes fetched!");
         Ok(quotes)

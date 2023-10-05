@@ -1,9 +1,11 @@
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Author {
+#[derive(Serialize, Deserialize, Debug, FromRow)]
+pub struct QuoteAuthor {
     pub id: i32,
+    pub slug: String,
     pub name: String
 }
 
-pub type Authors = Vec<Author>;
+pub type QuoteAuthorList = Vec<QuoteAuthor>;

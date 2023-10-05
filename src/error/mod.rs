@@ -23,7 +23,7 @@ pub enum Error {
     #[error("{0}")]
     AxumError(#[from] axum::Error),
 
-    #[error("Database Error:")]
+    #[error("Database Error: {0}")]
     PgError(#[from] sqlx::error::Error),
 
     #[error("invalid ID: {0}")]

@@ -2,10 +2,11 @@ use std::sync::Arc;
 
 use axum::{Router, routing, response::IntoResponse, extract::{State, Query}, http::{StatusCode, request, Request}, body::Body, error_handling::HandleErrorLayer};
 use serde::Serialize;
+use tracing::info;
 
 use crate::{context::ServerContext, utils::{response::ApiResponse, request::Json},  error::Error, services::quote::schema::QuoteList};
 
-use self::{repository::Repository, schema::CreateQuoteRequest, model::quote::Quote};
+use self::{repository::Repository, schema::{CreateQuoteRequest, CreateAuthorRequest}, model::quote::Quote};
 
 pub mod model;
 pub mod repository;
@@ -53,16 +54,26 @@ pub async fn index(
 
 pub async fn store(
     server_context: State<Arc<ServerContext>>,
-    Json(body): Json<CreateQuoteRequest>,
+    Json(mut body): Json<CreateQuoteRequest>,
 ) -> Result<impl IntoResponse,impl IntoResponse> {
-    let quote: Result<Quote, Error> = server_context.0.quote_service.repo.insert_one(server_context.db.clone(), body).await;
+    // Insert author if not exists
+    if body.author_id.is_none() && body.author_name.is_some() {
+        // Create new author
+        let author = server_context.quote_service.repo.insert_author(
+            server_context.db.clone(), 
+            CreateAuthorRequest {name: body.author_name.to_owned().unwrap()}
+        ).await?;
+        body.author_id = Some(author.id);
+    }
+    
+    let quote: Result<(), Error> = server_context.0.quote_service.repo.insert_quote(server_context.db.clone(), body).await;
     if let Err(e) = quote {
         return Err(e);
     }
 
     let response = ApiResponse::<Quote>::success(
                 "Quote created".to_string(), 
-                Some(quote.unwrap()), 
+                None, 
                 None
             );
     return Ok(response);
