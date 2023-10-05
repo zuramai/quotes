@@ -3,9 +3,9 @@ use std::sync::Arc;
 use axum::{Router, routing, response::IntoResponse, extract::{State, Query}, http::{StatusCode, request, Request}, body::Body, error_handling::HandleErrorLayer};
 use serde::Serialize;
 
-use crate::{context::ServerContext, utils::{response::ApiResponse, request::Json}, quote::model::Quote, error::Error};
+use crate::{context::ServerContext, utils::{response::ApiResponse, request::Json},  error::Error, services::quote::schema::QuoteList};
 
-use self::{repository::Repository, schema::CreateQuoteRequest};
+use self::{repository::Repository, schema::CreateQuoteRequest, model::quote::Quote};
 
 pub mod model;
 pub mod repository;
@@ -43,7 +43,7 @@ pub async fn index(
         return e;
     }
     tracing::info!("Quotes: {:#?}", quotes.as_ref().unwrap());
-    let response = ApiResponse::<Vec<Quote>>::success(
+    let response = ApiResponse::<QuoteList>::success(
                 "Success get quotes".to_string(), 
                 Some(quotes.unwrap()), 
                 None

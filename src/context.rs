@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{quote, db::DB, config::Config};
+use crate::{db::DB, config::Config, services::quote};
 
 pub struct ServerContext {
     pub db: Arc<DB>,

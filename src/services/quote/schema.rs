@@ -1,12 +1,12 @@
 use serde::{Serialize, Deserialize};
 
-use super::model::Quote;
+use super::model::quote::Quote;
 
 pub type QuoteList = Vec<Quote>;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct CreateQuoteRequest {
     pub quote: String,
-    pub tags: Vec<String>,
-    pub author: String,
+    pub tags: Option<Vec<String>>,
+    pub author_id: i32,
 }

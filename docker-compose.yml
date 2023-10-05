@@ -1,14 +1,14 @@
 version: '3'
 services:
-  mongo: 
-    image: mongo:latest
-    container_name: mongo
-    env_file:
-      - ./.env
+  postgres: 
+    image: postgres:latest 
+    container_name: quote_pg
+    env_file: 
+      - .env
     volumes:
-      - mongo:/data/db
-    ports:
-      - '27017:27017'
+      - postgres:/var/lib/postgresql/data
+    ports: 
+      - '5432:5432'
 volumes:
-  mongo:
+  postgres:
   

@@ -1,6 +1,8 @@
 use chrono::DateTime;
 
-use super::quote_author::Author;
+use crate::services::user::model::User;
+
+use super::{quote_author::Author};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -9,7 +11,8 @@ pub struct Quote {
     pub quote: String,
     pub tags: Vec<String>,
     pub author: Author,
+    pub created_by: User,
     pub likes_count: i32,
-    pub created_at: Option<DateTime<chrono::Local>>,
-    pub updated_at: Option<DateTime<chrono::Local>>,
+    pub created_at: DateTime<chrono::Local>,
+    pub updated_at: DateTime<chrono::Local>,
 }

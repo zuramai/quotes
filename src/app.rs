@@ -1,8 +1,7 @@
 use std::{net::SocketAddr, sync::Arc};
 
 use axum::{Router, routing::{Route, self}, response::IntoResponse, error_handling::HandleErrorLayer, http::StatusCode};
-use crate::{error::Error, user, utils::response::ApiResponse, config::Config, db::DB, context::ServerContext};
-use super::quote;
+use crate::{error::Error, utils::response::ApiResponse, config::Config, db::DB, context::ServerContext, services::{quote, user}};
 use tower::{ServiceBuilder};
 
 

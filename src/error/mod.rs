@@ -3,7 +3,7 @@ use axum::{response::IntoResponse, http::StatusCode};
 use crate::utils::response::ApiResponse;
 
 
-#[derive(thiserror::Error, Debug, Clone)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Internal error")]
     Internal(String),
@@ -20,24 +20,12 @@ pub enum Error {
     #[error("{0}")]
     AlreadyExists(String),
 
-    #[error("MongoDB error: {0}")]
-    MongoError(#[from] mongodb::error::Error),
+    #[error("{0}")]
+    AxumError(#[from] axum::Error),
 
-    #[error("duplicate key error: {0}")]
-    MongoErrorKind(mongodb::error::ErrorKind),
+    #[error("Database Error:")]
+    PgError(#[from] sqlx::error::Error),
 
-    #[error("duplicate key error: {0}")]
-    MongoDuplicateError(mongodb::error::Error),
-
-    #[error("error during mongodb query: {0}")]
-    MongoQueryError(mongodb::error::Error),
-
-    #[error("error serializing BSON")]
-    MongoSerializeBsonError(#[from] mongodb::bson::ser::Error),
-
-    #[error("validation error")]
-    MongoDataError(#[from] mongodb::bson::document::ValueAccessError),
-    
     #[error("invalid ID: {0}")]
     InvalidIDError(String),
 
@@ -54,6 +42,6 @@ impl IntoResponse for Error {
             Error::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
             _ => StatusCode::INTERNAL_SERVER_ERROR
         };
-        ApiResponse::<String>::error(self.clone().to_string(), Some(status_code)).into_response()
+        ApiResponse::<String>::error(self.to_string(), Some(status_code)).into_response()
     }
 }

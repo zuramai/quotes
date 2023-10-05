@@ -1,23 +1,32 @@
-use mongodb::{options::{ClientOptions, ServerApi, ServerApiVersion}, error::Error, Client, Database};
+use sqlx::{Postgres, postgres::PgPoolOptions, Pool};
+
+use crate::error::Error;
 
 
 pub struct DB {
-    pub conn: Database
+    pub conn: Pool<Postgres>
 }
 
 impl DB {
     pub async fn init() -> Result<Self, Error> {
         let database_url = std::env::var("DATABASE_URL").ok().unwrap();
-        let client_options = ClientOptions::parse(database_url).await?;
 
-        let client = Client::with_options(client_options)?;
-
-        let db = client
-            .database(std::env::var("MONGO_INITDB_DATABASE").ok().unwrap().as_str());
+        let pool = match PgPoolOptions::new()
+            .max_connections(10)
+            .connect(&database_url)
+            .await {
+                Ok(pool) => {
+                    tracing::info!("Database connected!");
+                    pool
+                },
+                Err(e) => {
+                    println!("Error connecting to database: {:?}", e);
+                    std::process::exit(1);
+                }
+            };
         
-        tracing::info!("MongoDB database connected!");
         Ok(DB {
-            conn: db
+            conn: pool
         })
     }
 }
