@@ -10,6 +10,7 @@ pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
         .merge(quote::router())
         .merge(user::router());
 
+    let db = Arc::new(db);
     let app = Router::new()
         .route("/", routing::get(welcome))
         .nest("/api", api_routes)
@@ -17,9 +18,10 @@ pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
             ServiceBuilder::new()
         )
         .with_state(Arc::new(ServerContext {
-            db: Arc::new(db),
+            db: db.clone(),
             config: Arc::new(config),
-            quote_service: Arc::new(quote::Service::new())
+            quote_service: Arc::new(quote::Service::new()),
+            user_service: Arc::new(user::Service::new(db.clone())),
         }));
     Ok(app)
 }

@@ -1,15 +1,12 @@
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct User {
-    id: i32,
-    username: String,
-    password: String,
-    created_at: String,
+    pub id: i32,
+    pub username: String,
+    pub password: String,
+    pub token: String,
+    pub created_at: NaiveDateTime,
 }
 
-#[derive(Deserialize)]
-pub struct CreateUser {
-    name: String,
-    password: String
-}

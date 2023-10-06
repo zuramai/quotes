@@ -17,7 +17,8 @@ impl Repository {
                 quotes.*,  
                 quote_authors.name AS author_name,
                 quote_authors.slug AS author_slug,
-                users.username AS username
+                users.username AS username,
+                users.created_at AS user_created_at
             FROM quotes
             JOIN quote_authors ON quote_authors.id = quotes.author_id
             JOIN users ON users.id = quotes.created_by
@@ -38,7 +39,8 @@ impl Repository {
                 },
                 created_by: UserResponse {
                     id: quote.created_by,
-                    username: quote.username.unwrap(),
+                    created_at: quote.user_created_at,
+                    username: quote.username,
                 },
                 tags: vec![],
                 likes_count: quote.likes_count,
