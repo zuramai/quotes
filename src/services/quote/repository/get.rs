@@ -94,6 +94,7 @@ impl Repository {
 
         for tag in result {
             tags.push(Tag {
+                id: tag.id,
                 tag: tag.tag
             });
         }

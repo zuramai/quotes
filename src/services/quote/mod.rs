@@ -59,6 +59,8 @@ pub async fn store(
     server_context: State<Arc<ServerContext>>,
     Json(mut body): Json<CreateQuoteRequest>,
 ) -> Result<impl IntoResponse,impl IntoResponse> {
+    let data = Option::Some(2);
+
     // Insert author if not exists
     if body.author_id.is_none() && body.author_name.is_some() {
         // Create new author
@@ -69,10 +71,14 @@ pub async fn store(
         body.author_id = Some(author.id);
     }
     
-    let quote: Result<(), Error> = server_context.0.quote_service.repo.insert_quote(server_context.db.clone(), body).await;
+    // Insert the quote
+    let quote: Result<i32, Error> = server_context.0.quote_service.repo.insert_quote(server_context.db.clone(), body.clone()).await;
     if let Err(e) = quote {
         return Err(e);
     }
+
+    // Insert the quote tags
+    let tags = server_context.0.quote_service.repo.insert_quote_tags(server_context.db.clone(), quote.unwrap(), body.tags.unwrap()).await?;
 
     let response = ApiResponse::<Quote>::success(
                 "Quote created".to_string(), 
