@@ -1,5 +1,5 @@
-pub mod insert_one;
-pub mod get_quotes;
+pub mod insert;
+pub mod get;
 
 pub struct Repository {}
 

@@ -34,22 +34,25 @@ pub async fn index(
     server_context: State<Arc<ServerContext>>
 ) -> impl IntoResponse {
     tracing::info!("Get all quotes request");
-    let quotes = server_context.0.quote_service.repo.get_quotes(server_context.db.clone())
+    let mut quotes = server_context.0.quote_service.repo.get_quotes(server_context.db.clone())
         .await
         .map_err(|err| {
             tracing::error!("Error: {}", err);
             ApiResponse::<Vec<Quote>>::error("Internal Server Error".into(), None)
         });
-    if let Err(e) = quotes {
-        return e;
+    if quotes.is_err() {
+        return quotes.unwrap_err()
     }
-    tracing::info!("Quotes: {:#?}", quotes.as_ref().unwrap());
-    let response = ApiResponse::<QuoteList>::success(
-                "Success get quotes".to_string(), 
-                Some(quotes.unwrap()), 
-                None
-        );
-    response
+
+    
+    
+    let response = ApiResponse::success(
+            "Success get quotes".to_string(), 
+            Some(quotes.unwrap()), 
+            None
+    );
+
+    return response
 }
 
 pub async fn store(

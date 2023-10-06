@@ -11,7 +11,6 @@ pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
         .merge(user::router());
 
     let app = Router::new()
-        .route("/healthchecker", routing::get(healthchecker))
         .route("/", routing::get(welcome))
         .nest("/api", api_routes)
         .layer(
@@ -25,10 +24,6 @@ pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
     Ok(app)
 }
 
-pub async fn welcome() -> impl IntoResponse {
-    ApiResponse::<String>::success("Welcome to Quotes!".into(), None, None)
-}
-
 pub async fn serve(host: SocketAddr, config: Config, db: DB) -> Result<(), super::error::Error> {
     let app = init(db, config).await?;
 
@@ -40,6 +35,6 @@ pub async fn serve(host: SocketAddr, config: Config, db: DB) -> Result<(), super
     Ok(())
 }
 
-pub async fn healthchecker() -> impl IntoResponse {
-    ApiResponse::<String>::success("I'm healthy!".into(), None, None)
+pub async fn welcome() -> impl IntoResponse {
+    ApiResponse::<String>::success("Welcome to Quotes!".into(), None, None)
 }

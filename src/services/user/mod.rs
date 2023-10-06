@@ -9,6 +9,7 @@ use self::repository::Repository;
 
 pub mod model;
 pub mod repository;
+pub mod schema;
 
 pub struct Service {
     repo: Repository
