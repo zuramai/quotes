@@ -18,6 +18,9 @@ pub enum Error {
     InvalidArgument(String),
 
     #[error("{0}")]
+    Unauthorized(String),
+
+    #[error("{0}")]
     AlreadyExists(String),
 
     #[error("{0}")]
@@ -39,6 +42,7 @@ impl IntoResponse for Error {
             Error::NotFound(_) => StatusCode::NOT_FOUND,
             Error::PermissionDenied(_) => StatusCode::UNAUTHORIZED,
             Error::AlreadyExists(_) => StatusCode::UNPROCESSABLE_ENTITY,
+            Error::Unauthorized(_) => StatusCode::UNAUTHORIZED,
             Error::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
             _ => StatusCode::INTERNAL_SERVER_ERROR
         };

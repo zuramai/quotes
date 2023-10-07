@@ -25,7 +25,7 @@ impl Service {
 
 pub fn router() -> Router<Arc<ServerContext>> {
     Router::new()
-        .route("/login", routing::get(login))
+        .route("/login", routing::post(login))
         .route("/register", routing::post(register))
         .route("/users", routing::get(index))
 }
@@ -43,8 +43,29 @@ pub async fn login(
     server_context: State<Arc<ServerContext>>,
     Json(body): Json<LoginRequest>
 ) -> Result<impl IntoResponse, Error> {
-    
-    Ok(())
+
+    // find user by username
+    let find_user = server_context.user_service.repo.find_user_by_username(&body.username).await;
+
+    let err = Err(Error::Unauthorized("Invalid credentials".into()));
+    if find_user.is_err() {
+        // User is exists
+        return err;
+    }
+
+    // Check password
+    let user = find_user.unwrap();
+    if user.password.ne(&body.password) {
+        return err;
+    }
+
+    // Create token
+    let token = uuid::Uuid::new_v4().to_string();
+    server_context.0.user_service.repo.update_user_token(user.id, &token).await?;
+
+    Ok(ApiResponse::success("Login success".into(), Some(AuthResponse {
+        token
+    }), None))
 }
 
 pub async fn register(

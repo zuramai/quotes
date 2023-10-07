@@ -24,4 +24,8 @@ impl Repository {
             .await?;
         Ok(q)
     }
+    pub async fn update_user_token(&self, user_id: i32, token: &String) -> Result<(), Error> {
+        sqlx::query!("UPDATE users SET token = $1 WHERE id = $2", token, user_id).execute(&self.db.conn).await?;
+        Ok(())
+    }
 }
