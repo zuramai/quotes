@@ -44,8 +44,6 @@ pub async fn index(
         return quotes.unwrap_err()
     }
 
-    
-    
     let response = ApiResponse::success(
             "Success get quotes".to_string(), 
             Some(quotes.unwrap()), 
