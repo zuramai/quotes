@@ -28,4 +28,15 @@ impl Repository {
         sqlx::query!("UPDATE users SET token = $1 WHERE id = $2", token, user_id).execute(&self.db.conn).await?;
         Ok(())
     }
+    pub async fn find_user_by_token(&self, token: &String) -> Result<User, Error> {
+        let q = sqlx::query!("SELECT * FROM users WHERE token = $1", token).fetch_one(&self.db.conn).await?;
+        let user = User {
+            created_at: q.created_at,
+            id: q.id,
+            password: q.password,
+            token: q.token,
+            username: q.username,
+        };
+        Ok(user)
+    }
 }
