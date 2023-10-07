@@ -1,14 +1,19 @@
 use std::{net::SocketAddr, sync::Arc};
 
 use axum::{Router, routing::{Route, self}, response::IntoResponse, error_handling::HandleErrorLayer, http::StatusCode};
+use tower_http::cors::{CorsLayer, Any};
 use crate::{error::Error, utils::response::ApiResponse, config::Config, db::DB, context::ServerContext, services::{quote, user}};
-use tower::{ServiceBuilder};
+use tower::{ServiceBuilder, Layer};
 
 
 pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
+    let cors = CorsLayer::new().allow_methods(Any).allow_origin(Any);
+    
     let api_routes = Router::new()
         .merge(quote::router())
-        .merge(user::router());
+        .merge(user::router())
+        .layer(ServiceBuilder::new().layer(cors));
+
 
     let db = Arc::new(db);
     let app = Router::new()
