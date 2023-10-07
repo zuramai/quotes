@@ -8,3 +8,7 @@ body {
 .container {
     @apply px-5;
 }
+a {
+    text-decoration: underline;
+    text-decoration-color: #777;
+}

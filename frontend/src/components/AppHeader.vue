@@ -13,14 +13,21 @@ console.log(store.isLoggedin)
                 <router-link to="/">Home</router-link>
             </li>
             <li>
-                <router-link to="/my-quotes">My Quotes</router-link>
+                <router-link to="/search">Find Quotes</router-link>
             </li>
-            <li v-if="!store.isLoggedin">
-                <router-link to="/login">Sign In</router-link>
-            </li>
-            <li v-else>
-                <router-link to="#" @click.prevent="store.logout()">Sign Out</router-link>
-            </li>
+            <template v-if="!store.isLoggedin">
+                <li>
+                    <router-link to="/login">Sign In</router-link>
+                </li>
+            </template>
+            <template v-else>
+                <li>
+                    <router-link to="/my-quotes">My Quotes</router-link>
+                </li>
+                <li>
+                    <router-link to="#" @click.prevent="store.logout()">Sign Out</router-link>
+                </li>
+            </template>
         </ul>
     </header>
 </template>

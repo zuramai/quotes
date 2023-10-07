@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import Alert from '@/components/Alert.vue';
-import MyButton from '@/components/MyButton.vue';
 import Input from '@/components/MyInput.vue';
 import { useStore } from '@/stores';
 import axios from 'axios';
@@ -30,19 +29,8 @@ const login = () => {
     <main>
         <div class="container mx-auto">
             <div class="max-w-[700px] mx-auto">
-                <h1 class="text-4xl font-bold mb-8">Sign In</h1>
+                <h1 class="text-4xl font-bold mb-8">Create Quote</h1>
                 <Alert type="danger" class="mb-5" v-if="error">{{ error }}</Alert>
-                <form action="" @submit.prevent="login">
-                    <div class="input-group mb-3">
-                        <Input label="Username" name="username" v-model="username"/>
-                    </div>
-                    <div class="input-group mb-3">
-                        <Input type="password" label="Password" name="password" v-model="password"/>
-                    </div>
-                    <div class="flex justify-end">
-                        <MyButton>Submit</MyButton>
-                    </div>
-                </form>
             </div>
         </div>
     </main>
