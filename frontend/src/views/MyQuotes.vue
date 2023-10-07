@@ -22,11 +22,9 @@ axios.get('/quotes')
 <template>
     <main>
         <div class="container mx-auto">
-            <div class="max-w-[700px] mx-auto">
-                <div class="flex justify-between  mb-8 items-center">
-                    <h1 class="text-4xl font-bold">My Quotes</h1>
-                    <MyButton to="/my-quotes/create">+ Create</MyButton>
-                </div>
+            <div class="flex justify-between  mb-8 items-center">
+                <h1 class="text-4xl font-bold">My Quotes</h1>
+                <MyButton to="/my-quotes/create">+ Create</MyButton>
             </div>
             <p v-if="isFetching">Loading..</p>
             <p v-else-if="!quotes.length">No quote exists. You can <router-link to="/my-quotes/create">add quote</router-link>.</p>
