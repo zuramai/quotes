@@ -1,10 +1,16 @@
+use std::sync::Arc;
+
+use crate::db::DB;
+
 pub mod insert;
 pub mod get;
 
-pub struct Repository {}
+pub struct QuoteRepository {
+    pub db: Arc<DB>
+}
 
-impl Repository {
-    pub fn new() -> Self {
-        Repository {  }
+impl QuoteRepository {
+    pub fn new(db: Arc<DB>) -> Self {
+        QuoteRepository { db }
     }
 }

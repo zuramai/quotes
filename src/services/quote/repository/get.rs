@@ -4,10 +4,10 @@ use chrono::format;
 
 use crate::{db::DB, error::Error, services::{quote::{schema::QuoteList, model::{quote::Quote, quote_author::QuoteAuthor, quote_tag::{Tag, QuoteTag}}}, user::{model::User, schema::UserResponse}}};
 
-use super::Repository;
+use super::QuoteRepository;
 
-impl Repository {
-    pub async fn get_quotes(&self, db: Arc<DB>) -> Result<QuoteList, Error> {
+impl QuoteRepository {
+    pub async fn get_quotes(&self) -> Result<QuoteList, Error> {
         tracing::info!("Fetching quotes from db..");
 
         let mut quotes: QuoteList = Vec::new();
@@ -23,7 +23,7 @@ impl Repository {
             JOIN quote_authors ON quote_authors.id = quotes.author_id
             JOIN users ON users.id = quotes.created_by
             ")
-            .fetch_all(&db.conn)
+            .fetch_all(&self.db.conn)
             .await?;
 
 
@@ -48,7 +48,7 @@ impl Repository {
                 updated_at: quote.updated_at,                
             })
         }
-        let all_tags = self.get_quotes_tags(db, quotes.iter().map(|q| q.id).collect()).await?;
+        let all_tags = self.get_quotes_tags(quotes.iter().map(|q| q.id).collect()).await?;
 
         // Set quote tags
         quotes.iter_mut().for_each(|quote| {
@@ -59,14 +59,14 @@ impl Repository {
         Ok(quotes)
     }
 
-    pub async fn get_quotes_tags(&self, db: Arc<DB>, quotes_id: Vec<i32>) -> Result<Vec<QuoteTag>, Error> {
+    pub async fn get_quotes_tags(&self, quotes_id: Vec<i32>) -> Result<Vec<QuoteTag>, Error> {
         let result = sqlx::query!(
             "SELECT quote_tags.quote_id, tags.id, tags.tag FROM quote_tags 
             JOIN tags ON quote_tags.tag_id = tags.id
             WHERE quote_id = ANY($1)",
             &quotes_id[..]
         )
-        .fetch_all(&db.conn)
+        .fetch_all(&self.db.conn)
         .await?;
 
         let mut tags = Vec::new();
@@ -82,14 +82,14 @@ impl Repository {
         Ok(tags)
     }
 
-    pub async fn get_quote_tags_by_quote_id(&self, db: Arc<DB>, quote_id: i32) -> Result<Vec<Tag>, Error> {
+    pub async fn get_quote_tags_by_quote_id(&self, quote_id: i32) -> Result<Vec<Tag>, Error> {
         let result = sqlx::query!(
             "SELECT quote_tags.id, tags.tag FROM quote_tags 
             JOIN tags ON quote_tags.tag_id = tags.id
             WHERE quote_id = $1",
             quote_id
         )
-        .fetch_all(&db.conn)
+        .fetch_all(&self.db.conn)
         .await?;
 
         let mut tags = Vec::new();

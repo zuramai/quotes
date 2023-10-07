@@ -25,7 +25,7 @@ pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
         .with_state(Arc::new(ServerContext {
             db: db.clone(),
             config: Arc::new(config),
-            quote_service: Arc::new(quote::Service::new()),
+            quote_service: Arc::new(quote::Service::new(db.clone())),
             user_service: Arc::new(user::Service::new(db.clone())),
         }));
     Ok(app)

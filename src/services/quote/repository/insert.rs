@@ -9,9 +9,9 @@ use crate::services::quote::model::quote_author::QuoteAuthor;
 use crate::services::quote::model::quote_tag::Tag;
 use crate::{services::quote::{schema::{CreateQuoteRequest, CreateAuthorRequest}, model::quote::Quote}, db::DB};
 
-use super::Repository;
+use super::QuoteRepository;
 
-impl Repository {
+impl QuoteRepository {
     pub async fn insert_author(&self, db: Arc<DB>, author: CreateAuthorRequest) -> Result<QuoteAuthor, crate::error::Error> {
         let q = sqlx::query_as!(QuoteAuthor, "INSERT INTO quote_authors (name, slug) VALUES ($1, $2) ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name RETURNING *", &author.name, slug::slugify(&author.name))
             .fetch_one(&db.conn)

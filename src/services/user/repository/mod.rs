@@ -6,11 +6,11 @@ use crate::{db::DB, error::Error};
 
 use super::model::User;
 
-pub struct Repository {
+pub struct UserRepository {
     pub db: Arc<DB>
 }
 
-impl Repository {
+impl UserRepository {
     pub async fn find_user_by_username(&self, username: &String) -> Result<User, Error> {
         let q = sqlx::query_as!(User, "SELECT * FROM users WHERE username = $1 LIMIT 1", username)
             .fetch_one(&self.db.conn)

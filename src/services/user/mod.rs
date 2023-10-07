@@ -5,20 +5,20 @@ use serde::Serialize;
 
 use crate::{context::ServerContext, error::Error, db::DB, utils::response::ApiResponse};
 
-use self::{repository::Repository, schema::{LoginRequest, RegisterRequest, AuthResponse}};
+use self::{repository::UserRepository, schema::{LoginRequest, RegisterRequest, AuthResponse}};
 
 pub mod model;
 pub mod repository;
 pub mod schema;
 
 pub struct Service {
-    pub repo: Repository
+    pub repo: UserRepository
 }
 
 impl Service {
     pub fn new(db: Arc<DB>) -> Self {
         Service {
-            repo: Repository { db }
+            repo: UserRepository { db }
         }
     }
 }

@@ -4,22 +4,24 @@ use axum::{Router, routing, response::IntoResponse, extract::{State, Query}, htt
 use serde::Serialize;
 use tracing::info;
 
-use crate::{context::ServerContext, utils::{response::ApiResponse, request::Json},  error::Error, services::quote::schema::QuoteList};
+use crate::{context::ServerContext, utils::{response::ApiResponse, request::Json},  error::Error, services::quote::schema::QuoteList, db::DB};
 
-use self::{repository::Repository, schema::{CreateQuoteRequest, CreateAuthorRequest}, model::quote::Quote};
+use self::{schema::{CreateQuoteRequest, CreateAuthorRequest}, model::quote::Quote, repository::QuoteRepository};
 
 pub mod model;
 pub mod repository;
 mod schema;
 
 pub struct Service {
-    pub repo: Repository
+    pub repo: QuoteRepository
 }
 
 impl Service {
-    pub fn new() -> Self {
+    pub fn new(db: Arc<DB>) -> Self {
         Service {
-            repo: Repository {  }
+            repo: QuoteRepository {
+                db
+            }
         }
     }
 }
@@ -34,7 +36,7 @@ pub async fn index(
     server_context: State<Arc<ServerContext>>
 ) -> impl IntoResponse {
     tracing::info!("Get all quotes request");
-    let mut quotes = server_context.0.quote_service.repo.get_quotes(server_context.db.clone())
+    let mut quotes = server_context.0.quote_service.repo.get_quotes()
         .await
         .map_err(|err| {
             tracing::error!("Error: {}", err);
