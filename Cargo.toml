@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 axum = { version = "0.6.18", features = ["macros"] }
 chrono = { version = "0.4.24", features = ["serde"] }
+clap = { version = "4.4.6", features = ["derive"] }
 dotenv = "0.15.0"
 envconfig = "0.10.0"
 futures = { version = "0.3.28", default-features = false, features = ["async-await"] }
