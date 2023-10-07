@@ -1,17 +1,28 @@
 <script lang="ts" setup>
+import Alert from '@/components/Alert.vue';
+import Input from '@/components/MyInput.vue';
+import { useStore } from '@/stores';
 import axios from 'axios';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const username = ref('')
 const password = ref('')
+const error = ref(false)
+
+const store = useStore()
+const router = useRouter()
 
 const login = () => {
     axios.post('/login', {
         username: username.value,
         password: password.value
     }).then((res) => {
-        console.log(res.data)
-    }) ;
+        store.setToken(res.data.token)
+        router.push('/')
+    }).catch(err => {
+        error.value = err.response.data.message
+    });
 }
 </script>
 <template>
@@ -19,14 +30,13 @@ const login = () => {
         <div class="container mx-auto">
             <div class="max-w-[700px] mx-auto">
                 <h1 class="text-4xl font-bold mb-8">Sign In</h1>
+                <Alert type="danger" class="mb-5" v-if="error">{{ error }}</Alert>
                 <form action="" @submit.prevent="login">
                     <div class="input-group mb-3">
-                        <label for="username">Username</label>
-                        <input type="text" name="username" class="border border-gray-400 focus:border-gray-500 focus:outline-none w-full px-2 py-1">
+                        <Input label="Username" name="username" v-model="username"/>
                     </div>
                     <div class="input-group mb-3">
-                        <label for="password">Password</label>
-                        <input type="password" name="password" class="border border-gray-400 focus:border-gray-500 focus:outline-none w-full px-2 py-1">
+                        <Input type="password" label="Password" name="password" v-model="password"/>
                     </div>
                     <div class="flex justify-end">
                         <button class="btn py-2 px-5 bg-gray-800 text-white">Submit</button>
