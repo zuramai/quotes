@@ -1,3 +1,4 @@
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
@@ -5,7 +6,8 @@ use sqlx::FromRow;
 pub struct QuoteAuthor {
     pub id: i32,
     pub slug: String,
-    pub name: String
+    pub name: String,
+    pub updated_at: NaiveDateTime
 }
 
 pub type QuoteAuthorList = Vec<QuoteAuthor>;

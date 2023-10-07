@@ -65,20 +65,19 @@ pub async fn store(
     if body.author_id.is_none() && body.author_name.is_some() {
         // Create new author
         let author = server_context.quote_service.repo.insert_author(
-            server_context.db.clone(), 
             CreateAuthorRequest {name: body.author_name.to_owned().unwrap()}
         ).await?;
         body.author_id = Some(author.id);
     }
     
     // Insert the quote
-    let quote: Result<i32, Error> = server_context.0.quote_service.repo.insert_quote(server_context.db.clone(), body.clone()).await;
+    let quote: Result<i32, Error> = server_context.0.quote_service.repo.insert_quote(body.clone()).await;
     if let Err(e) = quote {
         return Err(e);
     }
 
     // Insert the quote tags
-    let tags = server_context.0.quote_service.repo.insert_quote_tags(server_context.db.clone(), quote.unwrap(), body.tags.unwrap()).await?;
+    let tags = server_context.0.quote_service.repo.insert_quote_tags(quote.unwrap(), body.tags.unwrap()).await?;
 
     let response = ApiResponse::<Quote>::success(
                 "Quote created".to_string(), 

@@ -6,7 +6,7 @@ use crate::{error::Error, utils::response::ApiResponse, config::Config, db::DB, 
 use tower::{ServiceBuilder, Layer};
 
 
-pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
+pub async fn init<S>(db: Arc<DB>, config: Config) -> Result<Router<S>, Error> {
     let cors = CorsLayer::new().allow_methods(Any).allow_origin(Any).allow_headers([AUTHORIZATION, CONTENT_TYPE, ACCESS_CONTROL_ALLOW_ORIGIN]);
     
     let api_routes = Router::new()
@@ -15,7 +15,7 @@ pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
         .layer(ServiceBuilder::new().layer(cors));
 
 
-    let db = Arc::new(db);
+    let db = db;
     let app = Router::new()
         .route("/", routing::get(welcome))
         .nest("/api", api_routes)
@@ -31,7 +31,7 @@ pub async fn init<S>(db: DB, config: Config) -> Result<Router<S>, Error> {
     Ok(app)
 }
 
-pub async fn serve(host: SocketAddr, config: Config, db: DB) -> Result<(), super::error::Error> {
+pub async fn serve(host: SocketAddr, config: Config, db: Arc<DB>) -> Result<(), super::error::Error> {
     let app = init(db, config).await?;
 
     axum::Server::bind(&host)

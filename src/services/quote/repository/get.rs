@@ -7,6 +7,13 @@ use crate::{db::DB, error::Error, services::{quote::{schema::QuoteList, model::{
 use super::QuoteRepository;
 
 impl QuoteRepository {
+    pub async fn get_all_authors(&self) -> Result<Vec<QuoteAuthor>, Error> {
+        let result = sqlx::query_as!(QuoteAuthor, "SELECT * FROM quote_authors")
+            .fetch_all(&self.db.conn)
+            .await?;
+
+        Ok(result)
+    }
     pub async fn get_quotes(&self) -> Result<QuoteList, Error> {
         tracing::info!("Fetching quotes from db..");
 
@@ -17,6 +24,7 @@ impl QuoteRepository {
                 quotes.*,  
                 quote_authors.name AS author_name,
                 quote_authors.slug AS author_slug,
+                quote_authors.updated_at AS author_updated_at,
                 users.username AS username,
                 users.created_at AS user_created_at
             FROM quotes
@@ -35,7 +43,8 @@ impl QuoteRepository {
                 author: QuoteAuthor { 
                     id: quote.author_id,
                     name: quote.author_name, 
-                    slug: quote.author_slug
+                    slug: quote.author_slug,
+                    updated_at: quote.author_updated_at,
                 },
                 created_by: UserResponse {
                     id: quote.created_by,
