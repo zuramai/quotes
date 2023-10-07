@@ -7,10 +7,10 @@
                 <router-link to="/">Home</router-link>
             </li>
             <li>
-                <router-link to="/">My Quotes</router-link>
+                <router-link to="/my-quotes">My Quotes</router-link>
             </li>
             <li>
-                <router-link to="/">Sign In</router-link>
+                <router-link to="/login">Sign In</router-link>
             </li>
         </ul>
     </header>

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import CardQuote from '@/components/CardQuote.vue';
+import axios, { AxiosError } from 'axios';
 import { onMounted, reactive, ref } from 'vue';
 
 const link = ref('')
@@ -23,6 +24,21 @@ const copyLink = async () => {
   }, 300);
 }
 
+const quotes = ref([])
+
+const fetchQuotes = () => {
+  axios.get('/quotes')
+    .then(res => {
+      console.log(res.data)
+    }).catch((err) => {
+      console.log('error fetching data')
+    })
+}
+
+onMounted(() => {
+  fetchQuotes()
+})
+
 </script>
 
 <template>
@@ -30,11 +46,9 @@ const copyLink = async () => {
     <section id="hero" class="flex items-center justify-center bg-white">
       <div class="container px-5">
         <div class="cards grid grid-cols-3 gap-5">
-          <CardQuote></CardQuote>
-          <CardQuote></CardQuote>
-          <CardQuote></CardQuote>
-          <CardQuote></CardQuote>
+          <CardQuote :quote="quote" v-for="quote in quotes" ></CardQuote>
         </div>
+        <p v-if="!quotes.length">No quote exists.</p>
       </div>
     </section>
   </main>

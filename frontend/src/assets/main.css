@@ -5,3 +5,6 @@
 body {
     font-family: 'Nanum Myeongjo', serif;
 }
+.container {
+    @apply px-5;
+}
