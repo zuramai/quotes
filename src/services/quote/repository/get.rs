@@ -2,9 +2,33 @@
 
 
 
-use crate::{error::Error, services::{quote::{schema::QuoteList, model::{quote::Quote, quote_author::QuoteAuthor, quote_tag::{Tag, QuoteTag}}}, user::{schema::UserResponse}}};
+use chrono::NaiveDateTime;
 
+use crate::{error::Error, services::{quote::{schema::QuoteList, model::{quote::Quote, quote_author::QuoteAuthor, quote_tag::{Tag, QuoteTag}}}, user::{schema::UserResponse}}};
+use serde::Deserialize;
 use super::QuoteRepository;
+
+#[derive(Deserialize, Debug)]
+pub struct QuotePagination {
+    pub size: Option<i32>,
+    pub page: Option<i32>
+}
+
+#[derive(sqlx::FromRow)]
+pub struct QueryResult {
+    pub quote: String,
+    pub id: i32,
+    pub author_id: i32,
+    pub author_name: String,
+    pub author_slug: String,
+    pub author_updated_at: NaiveDateTime,
+    pub created_by: i32,
+    pub user_created_at: NaiveDateTime,
+    pub username: String,
+    pub likes_count: i32,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
 
 impl QuoteRepository {
     pub async fn get_all_authors(&self) -> Result<Vec<QuoteAuthor>, Error> {
@@ -14,26 +38,35 @@ impl QuoteRepository {
 
         Ok(result)
     }
-    pub async fn get_quotes(&self) -> Result<QuoteList, Error> {
-        tracing::info!("Fetching quotes from db..");
+    pub async fn get_quotes(&self, pagination: Option<QuotePagination>) -> Result<QuoteList, Error> {
+        tracing::info!("Fetching quotes from db.. {:?}", pagination);
 
         let mut quotes: QuoteList = Vec::new();
+        let mut limit = String::new();
+        if let Some(paginate) = pagination {
+            let size = paginate.size.unwrap_or(10);
+            let offset = paginate.page.unwrap_or(0) * size;
+            limit += format!("LIMIT {} OFFSET {}", size, offset).as_str();
+            
+        }
 
-        let result = sqlx::query!("
-            SELECT 
-                quotes.*,  
-                quote_authors.name AS author_name,
-                quote_authors.slug AS author_slug,
-                quote_authors.updated_at AS author_updated_at,
-                users.username AS username,
-                users.created_at AS user_created_at
-            FROM quotes
-            JOIN quote_authors ON quote_authors.id = quotes.author_id
-            JOIN users ON users.id = quotes.created_by
-            ")
+        let result: Vec<QueryResult> = sqlx::query_as(
+        format!("
+                SELECT 
+                    quotes.*,  
+                    quote_authors.name AS author_name,
+                    quote_authors.slug AS author_slug,
+                    quote_authors.updated_at AS author_updated_at,
+                    users.username AS username,
+                    users.created_at AS user_created_at
+                FROM quotes
+                JOIN quote_authors ON quote_authors.id = quotes.author_id
+                JOIN users ON users.id = quotes.created_by
+                {limit}
+            ").as_str()
+            )
             .fetch_all(&self.db.conn)
             .await?;
-
 
         
         for quote in result {

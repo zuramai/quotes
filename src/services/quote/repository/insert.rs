@@ -7,7 +7,7 @@ use slug::{self, slugify};
 
 use crate::services::quote::model::quote_author::QuoteAuthor;
 use crate::services::quote::model::quote_tag::Tag;
-use crate::{services::quote::{schema::{CreateQuoteRequest, CreateAuthorRequest}}};
+use crate::services::quote::schema::{CreateQuoteRequest, CreateAuthorRequest};
 
 use super::QuoteRepository;
 

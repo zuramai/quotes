@@ -1,12 +1,9 @@
 use std::sync::Arc;
 
 use axum::{Router, routing, response::IntoResponse, extract::{State, Query}};
-
-
-
 use crate::{context::ServerContext, utils::{response::ApiResponse, request::Json},  error::Error, db::DB};
-
-use self::{schema::{CreateQuoteRequest, CreateAuthorRequest}, model::quote::Quote, repository::QuoteRepository};
+use self::{schema::{CreateQuoteRequest, CreateAuthorRequest}, model::quote::Quote, repository::{QuoteRepository, get::QuotePagination}};
+use serde::Deserialize;
 
 pub mod model;
 pub mod repository;
@@ -32,11 +29,11 @@ pub fn router() -> Router<Arc<ServerContext>> {
 }
 
 pub async fn index(
-    _opts: Option<Query<String>>,
+    query: Query<QuotePagination>,
     server_context: State<Arc<ServerContext>>
 ) -> impl IntoResponse {
     tracing::info!("Get all quotes request");
-    let quotes = server_context.0.quote_service.repo.get_quotes()
+    let quotes = server_context.0.quote_service.repo.get_quotes(Some(query.0))
         .await
         .map_err(|err| {
             tracing::error!("Error: {}", err);
