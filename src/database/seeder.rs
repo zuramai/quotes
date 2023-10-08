@@ -58,11 +58,15 @@ impl Seeder {
         
         let mut builder = sqlx::QueryBuilder::new("INSERT INTO quotes (quote, created_by, author_id, likes_count)");
         
+        // Get all authors
         let all_authors = self.quote_repository.get_all_authors().await?;
-        let query = builder.push_values(q.quotes, |mut b, quote| {
+
+        let quotes: Vec<&QuoteItemJSON> = q.quotes.iter().filter(|quote| quote.length < 120).collect();
+
+        let query = builder.push_values(quotes, |mut b, quote| {
             // Find author id
             let author = all_authors.iter().find(|author| author.slug == slugify(&quote.source)).unwrap();
-            b.push_bind(quote.text).push_bind(1).push_bind(author.id).push_bind(0);
+            b.push_bind(quote.text.clone()).push_bind(1).push_bind(author.id).push_bind(0);
         }).build();
 
         match query.execute(&self.quote_repository.db.conn).await {
