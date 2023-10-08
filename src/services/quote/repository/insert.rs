@@ -1,13 +1,13 @@
-use std::sync::Arc;
 
-use chrono::Utc;
+
+
 use sqlx::{QueryBuilder, Row};
-use tracing::info;
+
 use slug::{self, slugify};
 
 use crate::services::quote::model::quote_author::QuoteAuthor;
 use crate::services::quote::model::quote_tag::Tag;
-use crate::{services::quote::{schema::{CreateQuoteRequest, CreateAuthorRequest}, model::quote::Quote}, db::DB};
+use crate::{services::quote::{schema::{CreateQuoteRequest, CreateAuthorRequest}}};
 
 use super::QuoteRepository;
 

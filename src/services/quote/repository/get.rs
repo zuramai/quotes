@@ -1,8 +1,8 @@
-use std::sync::Arc;
 
-use chrono::format;
 
-use crate::{db::DB, error::Error, services::{quote::{schema::QuoteList, model::{quote::Quote, quote_author::QuoteAuthor, quote_tag::{Tag, QuoteTag}}}, user::{model::User, schema::UserResponse}}};
+
+
+use crate::{error::Error, services::{quote::{schema::QuoteList, model::{quote::Quote, quote_author::QuoteAuthor, quote_tag::{Tag, QuoteTag}}}, user::{schema::UserResponse}}};
 
 use super::QuoteRepository;
 

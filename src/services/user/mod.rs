@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::{Router, routing, Json, response::IntoResponse, extract::State, http::{StatusCode, HeaderMap}};
-use serde::Serialize;
+
 
 use crate::{context::ServerContext, error::Error, db::DB, utils::response::ApiResponse};
 
@@ -72,7 +72,7 @@ pub async fn login(
 pub async fn logout(
     headers: HeaderMap,
     server_context: State<Arc<ServerContext>>,
-    Json(body): Json<LoginRequest>,
+    Json(_body): Json<LoginRequest>,
 ) -> Result<impl IntoResponse, Error> {
     // Get user id from token
     let err = Error::Unauthorized("Invalid token".into());

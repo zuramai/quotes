@@ -10,7 +10,7 @@ use quotes::services::quote::repository::QuoteRepository;
 use quotes::services::user::repository::UserRepository;
 use quotes::{config, error, db};
 use quotes::app;
-use tracing::info;
+
 
 #[derive(Parser)]
 struct Args {

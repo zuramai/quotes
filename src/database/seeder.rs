@@ -1,10 +1,10 @@
-use std::{sync::Arc, io::BufReader, fs::File, path::PathBuf};
+use std::{io::BufReader, fs::File, path::PathBuf};
 
 use slug::slugify;
 use tracing::info;
 use serde::Deserialize;
 
-use crate::{db::DB, services::{user::repository::UserRepository, quote::{repository::QuoteRepository, model::quote::Quote}}, error::Error};
+use crate::{services::{user::repository::UserRepository, quote::{repository::QuoteRepository}}, error::Error};
 
 pub struct Seeder {
     pub user_repository: UserRepository,
@@ -44,7 +44,7 @@ impl Seeder {
         // Get quotes from json file
         let filepath = PathBuf::from("./src/database/english_quotes.json");
         let file = match File::open(filepath.canonicalize().unwrap()) {
-            Err(e) => {
+            Err(_e) => {
                 panic!("File english quotes json not found");
             },
             Ok(o) => o

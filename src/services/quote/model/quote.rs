@@ -1,6 +1,6 @@
-use chrono::{DateTime, NaiveDateTime};
+use chrono::{NaiveDateTime};
 
-use crate::services::user::{model::User, schema::UserResponse};
+use crate::services::user::{schema::UserResponse};
 
 use super::quote_author::QuoteAuthor;
 use serde::{Deserialize, Serialize};

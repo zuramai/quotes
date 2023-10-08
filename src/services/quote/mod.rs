@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
-use axum::{Router, routing, response::IntoResponse, extract::{State, Query}, http::{StatusCode, request, Request}, body::Body, error_handling::HandleErrorLayer};
-use serde::Serialize;
-use tracing::info;
+use axum::{Router, routing, response::IntoResponse, extract::{State, Query}};
 
-use crate::{context::ServerContext, utils::{response::ApiResponse, request::Json},  error::Error, services::quote::schema::QuoteList, db::DB};
+
+
+use crate::{context::ServerContext, utils::{response::ApiResponse, request::Json},  error::Error, db::DB};
 
 use self::{schema::{CreateQuoteRequest, CreateAuthorRequest}, model::quote::Quote, repository::QuoteRepository};
 
@@ -32,11 +32,11 @@ pub fn router() -> Router<Arc<ServerContext>> {
 }
 
 pub async fn index(
-    opts: Option<Query<String>>,
+    _opts: Option<Query<String>>,
     server_context: State<Arc<ServerContext>>
 ) -> impl IntoResponse {
     tracing::info!("Get all quotes request");
-    let mut quotes = server_context.0.quote_service.repo.get_quotes()
+    let quotes = server_context.0.quote_service.repo.get_quotes()
         .await
         .map_err(|err| {
             tracing::error!("Error: {}", err);
@@ -59,7 +59,7 @@ pub async fn store(
     server_context: State<Arc<ServerContext>>,
     Json(mut body): Json<CreateQuoteRequest>,
 ) -> Result<impl IntoResponse,impl IntoResponse> {
-    let data = Option::Some(2);
+    let _data = Option::Some(2);
 
     // Insert author if not exists
     if body.author_id.is_none() && body.author_name.is_some() {
@@ -77,7 +77,7 @@ pub async fn store(
     }
 
     // Insert the quote tags
-    let tags = server_context.0.quote_service.repo.insert_quote_tags(quote.unwrap(), body.tags.unwrap()).await?;
+    let _tags = server_context.0.quote_service.repo.insert_quote_tags(quote.unwrap(), body.tags.unwrap()).await?;
 
     let response = ApiResponse::<Quote>::success(
                 "Quote created".to_string(), 
