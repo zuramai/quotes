@@ -15,12 +15,13 @@ const store = useStore()
 const router = useRouter()
 
 const login = () => {
-    axios.post('/login', {
+    axios.post('/register', {
         username: username.value,
         password: password.value
     }).then((res) => {
         store.setToken(res.data.token)
         router.push('/')
+        alert('Register success')
     }).catch(err => {
         error.value = err.response.data.message
     });
@@ -30,7 +31,7 @@ const login = () => {
     <main>
         <div class="container mx-auto">
             <div class="max-w-[700px] mx-auto">
-                <h1 class="text-4xl font-bold mb-8">Sign In</h1>
+                <h1 class="text-4xl font-bold mb-8">Sign Up</h1>
                 <Alert type="danger" class="mb-5" v-if="error">{{ error }}</Alert>
                 <form action="" @submit.prevent="login">
                     <div class="input-group mb-3">
@@ -40,7 +41,7 @@ const login = () => {
                         <Input type="password" label="Password" name="password" v-model="password"/>
                     </div>
                     <div class="flex justify-end items-center gap-3">
-                        <p class="text-sm">Don't have an account? <router-link to="/register">Sign up</router-link></p>
+                        <p class="text-sm">Already have an account? <router-link to="/login">Sign in</router-link></p>
                         <MyButton>Submit</MyButton>
                     </div>
                 </form>

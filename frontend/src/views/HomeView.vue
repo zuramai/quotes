@@ -25,14 +25,17 @@ const copyLink = async () => {
 }
 
 const quotes = ref([])
+const isLoading = ref(true)
 
 const fetchQuotes = () => {
   axios.get('/quotes')
     .then(res => {
       console.log(res.data.data)
       quotes.value = res.data.data
+      isLoading.value = false
     }).catch((err) => {
       console.log('error fetching data')
+      isLoading.value = false
     })
 }
 
@@ -46,8 +49,9 @@ onMounted(() => {
   <main>
     <section id="hero" class="flex items-center justify-center bg-white">
       <div class="container px-5">
-        <p v-if="!quotes.length">No quote exists.</p>
-        <div v-else class="cards grid grid-cols-3 gap-5">
+        <p v-if="!quotes.length && !isLoading">No quote exists.</p>
+        <p v-else-if="isLoading">Loading</p>
+        <div v-else class="cards grid grid-cols-1 lg:grid-cols-3 gap-5">
           <CardQuote :quote="quote" v-for="quote in quotes" ></CardQuote>
         </div>
       </div>
