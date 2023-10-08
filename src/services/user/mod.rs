@@ -3,7 +3,7 @@ use std::sync::Arc;
 use axum::{Router, routing, Json, response::IntoResponse, extract::State, http::{StatusCode, HeaderMap}};
 
 
-use crate::{context::ServerContext, error::Error, db::DB, utils::response::ApiResponse};
+use crate::{context::ServerContext, error::Error, db::DB, utils::response::ApiResponse, extractors::required_authentication::RequiredAuthentication};
 
 use self::{repository::UserRepository, schema::{LoginRequest, RegisterRequest, AuthResponse}};
 
@@ -72,17 +72,10 @@ pub async fn login(
 pub async fn logout(
     headers: HeaderMap,
     server_context: State<Arc<ServerContext>>,
+    RequiredAuthentication(user): RequiredAuthentication,
     Json(_body): Json<LoginRequest>,
 ) -> Result<impl IntoResponse, Error> {
-    // Get user id from token
-    let err = Error::Unauthorized("Invalid token".into());
-    let authorization = headers.get("Authorization");
-    if authorization.is_none() {
-        return Err(err); 
-    }
-    let token = &authorization.unwrap().to_str().unwrap().to_string()[7..].to_string();
-
-    let user = server_context.0.user_service.repo.find_user_by_token(token).await.map_err(|_| err)?;
+    
 
     // Remove the token
     server_context.0.user_service.repo.update_user_token(user.id, &"".into()).await?;

@@ -30,6 +30,30 @@ pub struct QueryResult {
     pub updated_at: NaiveDateTime,
 }
 
+impl From<&QueryResult> for Quote {
+    fn from(value: &QueryResult) -> Self {
+        Self {
+            quote: value.quote.clone(),
+            id: value.id,   
+            author: QuoteAuthor { 
+                id: value.author_id,
+                name: value.author_name.clone(), 
+                slug: value.author_slug.clone(),
+                updated_at: value.author_updated_at,
+            },
+            created_by: UserResponse {
+                id: value.created_by,
+                created_at: value.user_created_at,
+                username: value.username.clone(),
+            },
+            tags: vec![],
+            likes_count: value.likes_count,
+            created_at: value.created_at,
+            updated_at: value.updated_at,    
+        }
+    }
+}
+
 impl QuoteRepository {
     pub async fn get_all_authors(&self) -> Result<Vec<QuoteAuthor>, Error> {
         let result = sqlx::query_as!(QuoteAuthor, "SELECT * FROM quote_authors")
@@ -38,18 +62,38 @@ impl QuoteRepository {
 
         Ok(result)
     }
-    pub async fn get_quotes(&self, pagination: Option<QuotePagination>) -> Result<QuoteList, Error> {
+    pub async fn get_quotes_by_user_id(&self, user_id: i32, pagination: Option<QuotePagination>) -> Result<QuoteList, Error> {
+        return self.get_quotes(pagination, Some(vec![("created_by", user_id.to_string())])).await
+    }
+    pub async fn get_quotes(&self, pagination: Option<QuotePagination>, filters: Option<Vec<(&str, String)>>) -> Result<QuoteList, Error> {
         tracing::info!("Fetching quotes from db.. {:?}", pagination);
 
-        let mut quotes: QuoteList = Vec::new();
         let mut limit = String::new();
         if let Some(paginate) = pagination {
-            let size = paginate.size.unwrap_or(10);
+            let size = paginate.size.unwrap_or(15);
             let offset = paginate.page.unwrap_or(0) * size;
             limit += format!("LIMIT {} OFFSET {}", size, offset).as_str();
-            
         }
 
+        let mut wheres = String::new();
+        if let Some(filter) = filters {
+            wheres.push_str("WHERE ");
+            filter.iter().for_each(|(k,v)| {
+                wheres.push_str(format!("{} = {}", k,v).as_str());
+            })
+        }
+        println!("SELECT 
+        quotes.*,  
+        quote_authors.name AS author_name,
+        quote_authors.slug AS author_slug,
+        quote_authors.updated_at AS author_updated_at,
+        users.username AS username,
+        users.created_at AS user_created_at
+    FROM quotes
+    JOIN quote_authors ON quote_authors.id = quotes.author_id
+    JOIN users ON users.id = quotes.created_by
+    {wheres}
+    {limit}");
         let result: Vec<QueryResult> = sqlx::query_as(
         format!("
                 SELECT 
@@ -62,34 +106,15 @@ impl QuoteRepository {
                 FROM quotes
                 JOIN quote_authors ON quote_authors.id = quotes.author_id
                 JOIN users ON users.id = quotes.created_by
+                {wheres}
                 {limit}
             ").as_str()
             )
             .fetch_all(&self.db.conn)
             .await?;
 
+        let mut quotes: QuoteList = result.iter().map(|q| Quote::from(q)).collect();
         
-        for quote in result {
-            quotes.push(Quote {
-                quote: quote.quote,
-                id: quote.id,   
-                author: QuoteAuthor { 
-                    id: quote.author_id,
-                    name: quote.author_name, 
-                    slug: quote.author_slug,
-                    updated_at: quote.author_updated_at,
-                },
-                created_by: UserResponse {
-                    id: quote.created_by,
-                    created_at: quote.user_created_at,
-                    username: quote.username,
-                },
-                tags: vec![],
-                likes_count: quote.likes_count,
-                created_at: quote.created_at,
-                updated_at: quote.updated_at,                
-            })
-        }
         let all_tags = self.get_quotes_tags(quotes.iter().map(|q| q.id).collect()).await?;
 
         // Set quote tags

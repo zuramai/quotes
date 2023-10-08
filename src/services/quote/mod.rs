@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::{Router, routing, response::IntoResponse, extract::{State, Query}};
-use crate::{context::ServerContext, utils::{response::ApiResponse, request::Json},  error::Error, db::DB};
+use crate::{context::ServerContext, utils::{response::ApiResponse, request::Json},  error::Error, db::DB, extractors::required_authentication::RequiredAuthentication};
 use self::{schema::{CreateQuoteRequest, CreateAuthorRequest}, model::quote::Quote, repository::{QuoteRepository, get::QuotePagination}};
 use serde::Deserialize;
 
@@ -26,6 +26,7 @@ impl Service {
 pub fn router() -> Router<Arc<ServerContext>> {
     Router::new()
         .route("/quotes", routing::get(index).post(store))
+        .route("/my-quotes", routing::get(my_quotes))
 }
 
 pub async fn index(
@@ -33,7 +34,31 @@ pub async fn index(
     server_context: State<Arc<ServerContext>>
 ) -> impl IntoResponse {
     tracing::info!("Get all quotes request");
-    let quotes = server_context.0.quote_service.repo.get_quotes(Some(query.0))
+    let quotes = server_context.0.quote_service.repo.get_quotes(Some(query.0), None)
+        .await
+        .map_err(|err| {
+            tracing::error!("Error: {}", err);
+            ApiResponse::<Vec<Quote>>::error("Internal Server Error".into(), None)
+        });
+    if quotes.is_err() {
+        return quotes.unwrap_err()
+    }
+
+    let response = ApiResponse::success(
+            "Success get quotes".to_string(), 
+            Some(quotes.unwrap()), 
+            None
+    );
+
+    return response
+}
+pub async fn my_quotes(
+    query: Query<QuotePagination>,
+    RequiredAuthentication(user): RequiredAuthentication,
+    server_context: State<Arc<ServerContext>>
+) -> impl IntoResponse {
+    tracing::info!("Get all quotes request");
+    let quotes = server_context.0.quote_service.repo.get_quotes_by_user_id(user.id, Some(query.0))
         .await
         .map_err(|err| {
             tracing::error!("Error: {}", err);
