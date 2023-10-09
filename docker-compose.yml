@@ -8,7 +8,35 @@ services:
     volumes:
       - pg:/var/lib/postgresql/data
     ports: 
-      - '5433:5432'
+      - '5432:5432'
+    networks: 
+      - net
+  backend:
+    container_name: quote_backend
+    env_file: 
+      - .env 
+    volumes:
+      - code 
+    ports:
+      - 8000
+    build: .
+    depends_on: 
+      - postgres
+    networks: 
+      - net
+  frontend:
+    container_name: quote_frontend
+    env_file: 
+      - .env 
+    ports:
+      - 5173:5173
+    tty: true
+    volumes:
+      - ./:/srv/app
+    build: ./frontend
+networks:
+  net:
+    driver: bridge
 volumes:
   pg:
   
