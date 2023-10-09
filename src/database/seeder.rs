@@ -16,13 +16,13 @@ struct QuoteItemJSON {
     pub text: String,
     pub source: String,
     pub length: i32,
-    pub id: i32,
+    pub _id: i32,
 }
 
 #[derive(Deserialize)]
 struct QuoteJson {
-    pub language: String,
-    pub groups: Vec<Vec<i32>>,
+    pub _groups: Vec<Vec<i32>>,
+    pub _language: String,
     pub quotes: Vec<QuoteItemJSON>
 }
 

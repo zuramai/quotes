@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use axum::{extract::{FromRequest, FromRequestParts, State, FromRef}, http::request::Parts, async_trait, Extension, RequestPartsExt};
-use chrono::NaiveDateTime;
+use axum::{extract::{FromRequestParts, FromRef}, http::request::Parts, async_trait};
+
 use tracing::info;
 
 use crate::{error::Error, services::user::model::User, context::ServerContext};

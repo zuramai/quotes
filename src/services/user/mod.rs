@@ -70,7 +70,7 @@ pub async fn login(
 }
 
 pub async fn logout(
-    headers: HeaderMap,
+    _headers: HeaderMap,
     server_context: State<Arc<ServerContext>>,
     RequiredAuthentication(user): RequiredAuthentication,
     Json(_body): Json<LoginRequest>,

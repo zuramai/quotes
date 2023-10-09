@@ -1,6 +1,6 @@
 use std::{net::SocketAddr, sync::Arc};
 
-use axum::{Router, routing::{self}, response::IntoResponse, http::{header::{AUTHORIZATION, ACCESS_CONTROL_ALLOW_ORIGIN, CONTENT_TYPE}}, Extension};
+use axum::{Router, routing::{self}, response::IntoResponse, http::{header::{AUTHORIZATION, ACCESS_CONTROL_ALLOW_ORIGIN, CONTENT_TYPE}}};
 use tower_http::cors::{CorsLayer, Any};
 use crate::{error::Error, utils::response::ApiResponse, config::Config, db::DB, context::ServerContext, services::{quote, user}};
 use tower::ServiceBuilder;
