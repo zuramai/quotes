@@ -19,7 +19,7 @@ const login = () => {
         username: username.value,
         password: password.value
     }).then((res) => {
-        store.setToken(res.data.token)
+        store.setToken(res.data.data.token)
         router.push('/')
         alert('Register success')
     }).catch(err => {

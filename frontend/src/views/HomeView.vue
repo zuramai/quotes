@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import CardQuote from '@/components/CardQuote.vue';
+import type { Quote } from '@/types';
 import axios, { AxiosError } from 'axios';
 import { onMounted, reactive, ref } from 'vue';
 
@@ -24,14 +25,19 @@ const copyLink = async () => {
   }, 300);
 }
 
-const quotes = ref([])
+const quotes = ref<Quote[]>([])
+
+const pagination = reactive({
+  page: 0,
+  size: 15
+})
+
 const isLoading = ref(true)
 
 const fetchQuotes = () => {
-  axios.get('/quotes')
+  axios.get('/quotes', {params: pagination})
     .then(res => {
-      console.log(res.data.data)
-      quotes.value = res.data.data
+      quotes.value.push(...res.data.data)
       isLoading.value = false
     }).catch((err) => {
       console.log('error fetching data')
