@@ -83,7 +83,7 @@ impl QuoteRepository {
             })
         }
         let result: Vec<QueryResult> = sqlx::query_as(
-        format!("
+        format!(r#"
                 SELECT 
                     quotes.*,  
                     quote_authors.name AS author_name,
@@ -96,15 +96,14 @@ impl QuoteRepository {
                 JOIN users ON users.id = quotes.created_by
                 {wheres}
                 {limit}
-            ").as_str()
+            "#).as_str()
             )
             .fetch_all(&self.db.conn)
             .await?;
-
         let mut quotes: QuoteList = result.iter().map(|q| Quote::from(q)).collect();
-        
+       
         let all_tags = self.get_quotes_tags(quotes.iter().map(|q| q.id).collect()).await?;
-
+        
         // Set quote tags
         quotes.iter_mut().for_each(|quote| {
             quote.tags = all_tags.iter().filter(|tag| tag.quote_id == quote.id).map(|tag| tag.tag_name.clone().unwrap()).collect();

@@ -31,7 +31,9 @@ const submit = () => {
         author_name: form.author
     }).then((res) => {
         alert('Quote created')
+        router.push('/my-quotes')
     }).catch(err => {
+        alert('Error while creating quotes')
     });
 }
 </script>

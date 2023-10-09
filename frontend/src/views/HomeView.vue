@@ -39,6 +39,7 @@ const fetchQuotes = () => {
     .then(res => {
       quotes.value.push(...res.data.data)
       isLoading.value = false
+      pagination.page++
     }).catch((err) => {
       console.log('error fetching data')
       isLoading.value = false
@@ -47,12 +48,20 @@ const fetchQuotes = () => {
 
 onMounted(() => {
   fetchQuotes()
+
+  // Infinite scroll
+
+  window.addEventListener('scroll', e => {
+    if(window.scrollY + window.innerHeight + 2 > document.body.clientHeight) {
+      fetchQuotes()
+    }
+  })
 })
 
 </script>
 
 <template>
-  <main>
+  <main class="pb-24">
     <section id="hero" class="flex items-center justify-center bg-white">
       <div class="container px-5">
         <p v-if="!quotes.length && !isLoading">No quote exists.</p>
