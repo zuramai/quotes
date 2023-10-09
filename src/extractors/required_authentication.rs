@@ -18,13 +18,7 @@ where
     async fn from_request_parts(parts: &mut Parts, state: &S) ->  Result<Self, Self::Rejection> {
         info!("Get user info");
         let server_context = Arc::<ServerContext>::from_ref(state);
-        // let State(server_context): State<Arc<ServerContext>> = parts.extract::<State<Arc<ServerContext>>>()
-        // .await
-        // .map_err(|err| {
-        //     info!("{err}");
-        //     Error::Internal("Internal server error".into())
-        // })?;
-
+       
         // Get user id from token
         let err = Error::Unauthorized("Invalid token".into());
         let authorization = parts.headers.get("Authorization");
