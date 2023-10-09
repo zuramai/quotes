@@ -37,7 +37,7 @@ impl QuoteRepository {
             .await?;
         Ok(())
     }
-    pub async fn insert_quote(&self, quote: CreateQuoteRequest) -> Result<i32, crate::error::Error> {
+    pub async fn insert_quote(&self, quote: CreateQuoteRequest, user_id: i32) -> Result<i32, crate::error::Error> {
         let q = sqlx::query!("INSERT INTO quotes (
             quote,
             author_id,
@@ -45,7 +45,7 @@ impl QuoteRepository {
             likes_count)
             VALUES ($1, $2, $3, $4)
             RETURNING id
-            ",quote.quote,quote.author_id, 1, 0)
+            ",quote.quote,quote.author_id, user_id, 0)
             .fetch_one(&self.db.conn)
             .await?;
         

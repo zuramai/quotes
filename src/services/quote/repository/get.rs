@@ -82,18 +82,6 @@ impl QuoteRepository {
                 wheres.push_str(format!("{} = {}", k,v).as_str());
             })
         }
-        println!("SELECT 
-        quotes.*,  
-        quote_authors.name AS author_name,
-        quote_authors.slug AS author_slug,
-        quote_authors.updated_at AS author_updated_at,
-        users.username AS username,
-        users.created_at AS user_created_at
-    FROM quotes
-    JOIN quote_authors ON quote_authors.id = quotes.author_id
-    JOIN users ON users.id = quotes.created_by
-    {wheres}
-    {limit}");
         let result: Vec<QueryResult> = sqlx::query_as(
         format!("
                 SELECT 

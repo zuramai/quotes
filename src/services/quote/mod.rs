@@ -57,7 +57,7 @@ pub async fn my_quotes(
     RequiredAuthentication(user): RequiredAuthentication,
     server_context: State<Arc<ServerContext>>
 ) -> impl IntoResponse {
-    tracing::info!("Get all quotes request");
+    tracing::info!("Get my quotes request user_id: {}", user.id);
     let quotes = server_context.0.quote_service.repo.get_quotes_by_user_id(user.id, Some(query.0))
         .await
         .map_err(|err| {
@@ -79,7 +79,8 @@ pub async fn my_quotes(
 
 pub async fn store(
     server_context: State<Arc<ServerContext>>,
-    Json(mut body): Json<CreateQuoteRequest>,
+    RequiredAuthentication(user): RequiredAuthentication,
+    Json(mut body): Json<CreateQuoteRequest>
 ) -> Result<impl IntoResponse,impl IntoResponse> {
     let _data = Option::Some(2);
 
@@ -93,7 +94,7 @@ pub async fn store(
     }
     
     // Insert the quote
-    let quote: Result<i32, Error> = server_context.0.quote_service.repo.insert_quote(body.clone()).await;
+    let quote: Result<i32, Error> = server_context.0.quote_service.repo.insert_quote(body.clone(), user.id).await;
     if let Err(e) = quote {
         return Err(e);
     }
