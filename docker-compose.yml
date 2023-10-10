@@ -32,7 +32,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/quotes?sslmode=disable
     ports:  
-      - 8000
+      - 8000:8000
     build: .
     depends_on: 
       postgres:
