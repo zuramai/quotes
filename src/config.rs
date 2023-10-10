@@ -1,7 +1,7 @@
 use std::net::IpAddr;
 
 use envconfig::Envconfig;
-#[derive(envconfig::Envconfig)]
+#[derive(envconfig::Envconfig, Clone)]
 pub struct Config {
     #[envconfig(from = "APP_HOST")]
     pub app_host: IpAddr,

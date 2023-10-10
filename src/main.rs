@@ -1,4 +1,5 @@
 use std::net::{SocketAddr, IpAddr};
+use std::process::exit;
 use std::sync::Arc;
 
 
@@ -35,16 +36,33 @@ async fn main() -> Result<(), quotes::error::Error> {
     // Run DB
     let db = Arc::new(db::DB::init().await?);
 
+
     // Parse arguments
     let args = Args::parse();
     if let Some(command) = args.command {
-        if command == "db:seed" {
-            let seeder = Seeder::new(
-                UserRepository { db: db.clone() },
-                QuoteRepository { db: db.clone() }
-            );
-            seeder.seed().await?;
-            return Ok(())
+        match command.as_str() {
+            "db:seed" => {
+                let seeder = Seeder::new(
+                    UserRepository { db: db.clone() },
+                    QuoteRepository { db: db.clone() }
+                );
+                seeder.seed().await?;
+                return Ok(())
+            },
+            "db:migrate" => {
+                let migrate = sqlx::migrate!("./migrations").run(&db.conn).await;
+                if migrate.is_err() {
+                    tracing::error!("Migration error: {:?}", migrate.unwrap_err());
+                    panic!();
+                } else {
+                    tracing::info!("Migrate success");
+                    exit(0);
+                }
+            }
+            _ => {
+                tracing::error!("Unknown command");
+                panic!();
+            }
         }
     } 
 
