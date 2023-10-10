@@ -1,20 +1,25 @@
-FROM rust:1.70-bullseye
+### STAGE 1: install cargo chef
+FROM rust AS chef
+RUN cargo install cargo-chef
+WORKDIR /app
 
+### STAGE 2: create cargo chef recipe.json
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
 
-RUN cargo new --bin quotes
-WORKDIR /quotes
+### STAGE 3: build dependencies from recipe.json and build the app
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
+# Build dependencies - this is the caching Docker layer!
+RUN cargo chef cook --release --recipe-path recipe.json
+# Build application
+COPY . .
+RUN cargo build --release --bin quotes
 
-COPY ./Cargo.lock ./Cargo.lock
-COPY ./Cargo.toml ./Cargo.toml 
-COPY ./.env ./.env
-COPY ./.sqlx ./.sqlx
-
-RUN cargo build --release
-RUN rm src/*.rs 
-
-COPY ./src ./src 
-
-RUN rm ./target/release/quotes 
-RUN cargo install --path .
-
-CMD ["./target/release/quotes"]
+### STAGE 4: run the app
+# We do not need the Rust toolchain to run the binary!
+FROM gcr.io/distroless/cc-debian12
+COPY --from=builder /app/target/release/quotes app
+# RUN chmod +x ./app
+ENTRYPOINT [ "./app" ]

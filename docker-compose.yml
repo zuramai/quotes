@@ -11,17 +11,34 @@ services:
       - '5432:5432'
     networks: 
       - net
+    healthcheck:
+      test: pg_isready
+      interval: 30s
+      timeout: 20s
+      retries: 10
+  # backend-migrate:
+  #   build: ./
+  #   entrypoint: /app db:migrate
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   environment:
+  #     - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/quotes?sslmode=disable
+
   backend:
     container_name: quote_backend
     env_file: 
       - .env 
-    volumes:
-      - code 
-    ports:
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/quotes?sslmode=disable
+    ports:  
       - 8000
     build: .
     depends_on: 
-      - postgres
+      postgres:
+        condition: service_healthy
+      # backend-migrate:
+      #   condition: service_completed_successfully
     networks: 
       - net
   frontend:
