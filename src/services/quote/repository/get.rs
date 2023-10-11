@@ -95,6 +95,7 @@ impl QuoteRepository {
                 JOIN quote_authors ON quote_authors.id = quotes.author_id
                 JOIN users ON users.id = quotes.created_by
                 {wheres}
+                ORDER BY id DESC
                 {limit}
             "#).as_str()
             )
