@@ -11,7 +11,7 @@ import axios from 'axios'
 
 const app = createApp(App)
 
-axios.defaults.baseURL = "http://localhost:8000/api"
+axios.defaults.baseURL = import.meta.env.VITE_SERVER_URL
 
 app.use(createPinia())
 app.use(router)
