@@ -1,21 +1,5 @@
-version: '3'
+version: '3.4'
 services:
-  postgres: 
-    image: postgres:latest 
-    container_name: quote_db
-    env_file: 
-      - .env
-    volumes:
-      - pg:/var/lib/postgresql/data
-    ports: 
-      - '5432:5432'
-    networks: 
-      - net
-    healthcheck:
-      test: pg_isready
-      interval: 30s
-      timeout: 20s
-      retries: 10
   # backend-migrate:
   #   build: ./
   #   entrypoint: /app db:migrate
@@ -29,18 +13,20 @@ services:
     container_name: quote_backend
     env_file: 
       - .env 
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/quotes?sslmode=disable
     ports:  
       - 8000:8000
-    build: .
-    depends_on: 
-      postgres:
-        condition: service_healthy
-      # backend-migrate:
-      #   condition: service_completed_successfully
+    build: 
+      context: .
+      network: host
     networks: 
-      - net
+      - quotes_net
+    healthcheck:
+      interval: 1m
+      timeout: 3s
+      retries: 3
+      test: wget --no-verbose --tries=1 --spider http://localhost::8000/ || exit 1
+      start_period: 5s
+      start_interval: 1s
   frontend:
     container_name: quote_frontend
     env_file: 
@@ -51,9 +37,11 @@ services:
     volumes:
       - ./:/srv/app
     build: ./frontend
+    depends_on:
+      - backend
 networks:
-  net:
-    driver: bridge
+  quotes_net:
+    external: true
 volumes:
   pg:
   

@@ -1,0 +1,13 @@
+version: '3.4'
+services:
+  backend-migrate:
+    build: ./
+    entrypoint: /app db:migrate
+    networks:
+      - quotes_net
+networks:
+  quotes_net:
+    external: true
+volumes:
+  pg:
+  
